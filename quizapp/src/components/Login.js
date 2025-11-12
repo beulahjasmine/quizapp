@@ -9,45 +9,47 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!email || !password) {
-    alert("Please enter both email and password");
-    return;
-  }
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
 
-  try {
-    console.log("🔵 Sending login request..."); // DEBUG
-    
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    console.log("🔵 Response status:", res.status); // DEBUG
-    const data = await res.json();
-    console.log("🔵 Response data:", data); // DEBUG
-
-    if (res.ok) {
-      console.log("✅ Login successful!"); // DEBUG
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      
-      // Check if token was saved
-      console.log("🔵 Token saved:", localStorage.getItem("token")); // DEBUG
-      console.log("🔵 Navigating to dashboard..."); // DEBUG
-      
-      navigate("/dashboard");
-    } else {
-      console.log("❌ Login failed:", data.message); // DEBUG
-      setMessage(data.message || "Login failed");
+    if (!trimmedEmail || !trimmedPassword) {
+      alert("Please enter both email and password");
+      return;
     }
-  } catch (err) {
-    console.error("❌ Error:", err); // DEBUG
-    setMessage("Server error");
-  }
-};
+
+    try {
+      console.log(" Sending login request..."); // DEBUG
+
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmedEmail, password: trimmedPassword }),
+      });
+
+      console.log(" Response status:", res.status); // DEBUG
+      const data = await res.json();
+      console.log(" Response data:", data); // DEBUG
+
+      if (res.ok) {
+        console.log(" Login successful!"); // DEBUG
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        console.log(" Token saved:", localStorage.getItem("token")); // DEBUG
+        console.log(" Navigating to dashboard..."); // DEBUG
+
+        navigate("/dashboard");
+      } else {
+        console.log(" Login failed:", data.message); // DEBUG
+        setMessage(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error(" Error:", err); // DEBUG
+      setMessage("Server error");
+    }
+  };
 
   return (
     <div style={styles.container}>
