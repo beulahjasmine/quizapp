@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
+import QuizPlayer from "./QuizPlayer";
 
 export default function QuizDashboard() {
-  const [questions, setQuestions] = useState(15);
+  const [questionsCount, setQuestionsCount] = useState(10);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizData, setQuizData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch quiz questions from backend
   const fetchQuiz = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        `http://localhost:5000/api/questions?limit=${questions}`,
+        `http://localhost:5000/api/questions?limit=${questionsCount}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -24,10 +24,10 @@ export default function QuizDashboard() {
 
       setQuizData(response.data);
       setQuizStarted(true);
-      setLoading(false);
     } catch (error) {
       console.error("Error fetching quiz:", error);
-      alert("Failed to fetch quiz.");
+      alert("Failed to load quiz questions.");
+    } finally {
       setLoading(false);
     }
   };
@@ -41,18 +41,18 @@ export default function QuizDashboard() {
       {!quizStarted ? (
         <div style={styles.card}>
           <h2 style={styles.title}>Quiz Dashboard</h2>
-          <p>Welcome! Ready to test your knowledge?</p>
+          <p>Select the number of questions you want for the quiz.</p>
 
-          <label htmlFor="questions">Select number of questions:</label>
+          <label htmlFor="questions">Number of Questions:</label>
           <select
             id="questions"
-            value={questions}
-            onChange={(e) => setQuestions(Number(e.target.value))}
+            value={questionsCount}
+            onChange={(e) => setQuestionsCount(Number(e.target.value))}
             style={styles.select}
           >
-            {[5, 10, 15, 20, 25].map((num) => (
-              <option key={num} value={num}>
-                {num}
+            {[5, 10, 15, 20, 25].map((count) => (
+              <option key={count} value={count}>
+                {count}
               </option>
             ))}
           </select>
@@ -62,24 +62,13 @@ export default function QuizDashboard() {
           </button>
         </div>
       ) : (
-        <div style={styles.card}>
-          <h2 style={styles.title}>Quiz Started!</h2>
-          <p>Your quiz has {quizData.length} questions.</p>
-
-          {/* Render questions */}
-          {quizData.map((q, index) => (
-            <div key={q._id} style={{ marginBottom: "15px" }}>
-              <strong>
-                {index + 1}. {q.question}
-              </strong>
-              <ul>
-                {q.options.map((opt, i) => (
-                  <li key={i}>{opt}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <QuizPlayer
+          quizData={quizData}
+          onExit={() => {
+            setQuizStarted(false);
+            setQuizData([]);
+          }}
+        />
       )}
     </div>
   );
@@ -87,37 +76,38 @@ export default function QuizDashboard() {
 
 const styles = {
   container: {
+    minHeight: "70vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    minHeight: "70vh",
-    backgroundColor: "#f5f5f5",
     padding: "20px",
+    backgroundColor: "#f0f4f8",
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     padding: "40px",
     borderRadius: "12px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+    width: "420px",
     textAlign: "center",
-    width: "500px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
   },
   title: {
-    marginBottom: "15px",
+    marginBottom: "20px",
   },
   select: {
     width: "100%",
-    padding: "8px",
-    margin: "15px 0",
-    borderRadius: "5px",
+    padding: "10px",
+    margin: "20px 0",
+    borderRadius: "8px",
     border: "1px solid #ccc",
   },
   button: {
-    backgroundColor: "#007BFF",
-    color: "#fff",
+    backgroundColor: "#007bff",
+    color: "white",
     border: "none",
-    padding: "10px 20px",
-    borderRadius: "5px",
+    padding: "12px 20px",
+    borderRadius: "8px",
     cursor: "pointer",
+    fontSize: "16px",
   },
 };
