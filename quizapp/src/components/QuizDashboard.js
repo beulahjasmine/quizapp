@@ -14,7 +14,7 @@ export default function QuizDashboard() {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        `http://localhost:5000/api/quizzes?limit=${questions}`,
+        `http://localhost:5000/api/questions?limit=${questions}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

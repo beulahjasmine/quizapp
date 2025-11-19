@@ -1,12 +1,15 @@
 // src/components/Login.js
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+
 import { useNavigate, Link } from "react-router-dom";
+import { AuthContext } from "../AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,6 +39,7 @@ const Login = () => {
         console.log(" Login successful!"); // DEBUG
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+        setIsAuthenticated(true);
 
         console.log(" Token saved:", localStorage.getItem("token")); // DEBUG
         console.log(" Navigating to dashboard..."); // DEBUG

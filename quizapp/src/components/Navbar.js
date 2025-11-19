@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
+import { AuthContext } from "../AuthContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
+  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    setIsLoggedIn(false);
+    localStorage.removeItem("user");
+
+    setIsAuthenticated(false);   // Re-renders Navbar immediately
+
     navigate("/login");
   };
 
   const getLinkStyle = (requiresLogin = false) => ({
-    color: requiresLogin && !isLoggedIn ? "#aaa" : "#fff",
+    color: requiresLogin && !isAuthenticated ? "#aaa" : "#fff",
     textDecoration: "none",
-    fontWeight: requiresLogin && !isLoggedIn ? "400" : "500",
-    pointerEvents: requiresLogin && !isLoggedIn ? "none" : "auto",
-    cursor: requiresLogin && !isLoggedIn ? "default" : "pointer",
+    fontWeight: requiresLogin && !isAuthenticated ? "400" : "500",
+    pointerEvents: requiresLogin && !isAuthenticated ? "none" : "auto",
+    cursor: requiresLogin && !isAuthenticated ? "default" : "pointer",
   });
 
   return (
@@ -31,7 +31,7 @@ export default function Navbar() {
       <div className="navbar-left">
         <Link to="/" className="logo">QuizApp</Link>
 
-        {/* Hamburger for mobile */}
+        {/* Mobile Hamburger */}
         <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
           ☰
         </button>
@@ -46,14 +46,16 @@ export default function Navbar() {
       </div>
 
       <div className={`navbar-right ${menuOpen ? "open" : ""}`}>
-        {!isLoggedIn && (
+        {!isAuthenticated && (
           <>
             <Link style={getLinkStyle()} to="/login">Login</Link>
             <Link style={getLinkStyle()} to="/signup">Signup</Link>
           </>
         )}
+
         <Link style={getLinkStyle()} to="/settings">Settings</Link>
-        {isLoggedIn && (
+
+        {isAuthenticated && (
           <button className="logout-btn" onClick={handleLogout}>
             Logout
           </button>
